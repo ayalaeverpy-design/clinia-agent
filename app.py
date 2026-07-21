@@ -15,9 +15,42 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 DATA_DIR = PROJECT_ROOT / "data"
 
 st.set_page_config(
-    page_title="ClinIA | Asistente médico administrativo",
+    page_title="ClinIA | Asistente administrativo",
     page_icon="🩺",
     layout="wide",
+    initial_sidebar_state="expanded",
+)
+
+st.markdown(
+    """
+    <style>
+        .block-container {padding-top: 2rem; padding-bottom: 2rem; max-width: 1500px;}
+        .clinia-hero {
+            padding: 1.3rem 1.5rem;
+            border: 1px solid rgba(120, 130, 255, 0.25);
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(91, 72, 255, 0.14), rgba(14, 165, 233, 0.08));
+            margin-bottom: 1rem;
+        }
+        .clinia-hero h1 {margin: 0; font-size: 2.15rem;}
+        .clinia-hero p {margin: .45rem 0 0; opacity: .82;}
+        .clinia-badge {
+            display: inline-block;
+            padding: .25rem .65rem;
+            border-radius: 999px;
+            border: 1px solid rgba(120, 130, 255, .35);
+            margin-right: .35rem;
+            font-size: .82rem;
+        }
+        [data-testid="stMetric"] {
+            border: 1px solid rgba(128, 128, 128, .18);
+            border-radius: 14px;
+            padding: .8rem 1rem;
+        }
+        [data-testid="stChatMessage"] {border-radius: 16px;}
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 
@@ -39,8 +72,20 @@ def build_agent(_retriever: BM25Retriever) -> ClinIAAgent:
     return ClinIAAgent(_retriever, OCIChatClient(settings))
 
 
-st.title("🩺 ClinIA")
-st.subheader("Asistente inteligente para Clínica Vida Plena")
+st.markdown(
+    """
+    <div class="clinia-hero">
+      <h1>🩺 ClinIA</h1>
+      <p>Asistente inteligente para consultas administrativas de Clínica Vida Plena.</p>
+      <div style="margin-top:.8rem">
+        <span class="clinia-badge">RAG documental</span>
+        <span class="clinia-badge">OCI Generative AI</span>
+        <span class="clinia-badge">PDF + CSV</span>
+      </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 st.caption("Proyecto académico · La clínica, los convenios y las políticas son ficticios")
 
 try:
@@ -66,7 +111,7 @@ col3.metric("Fragmentos", chunk_stats["total_chunks"])
 col4.metric("Modelo", "Gemini 2.5 Flash" if oci_ready else "OCI pendiente")
 
 if oci_ready:
-    st.success("Base documental y conexión local con OCI preparadas correctamente.")
+    st.success("Base documental indexada y conexión con OCI disponibles.")
 else:
     st.error(f"La configuración de OCI todavía no está lista: {oci_error}")
 
@@ -81,31 +126,38 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 with st.sidebar:
+    st.markdown("## ClinIA")
+    st.caption("Consultas administrativas basadas en documentos")
+    st.divider()
     st.markdown("### Preguntas de prueba")
     for index, example in enumerate(examples):
         if st.button(example, key=f"example_{index}", use_container_width=True):
             st.session_state["pending_question"] = example
 
     st.divider()
-    st.markdown("### Estado")
+    st.markdown("### Estado del agente")
     st.write("✅ Lectura de PDF y CSV")
     st.write("✅ Fragmentación documental")
-    st.write("✅ Recuperación BM25")
+    st.write("✅ Recuperación BM25 enfocada")
     st.write("✅ Generación con OCI" if oci_ready else "⚠️ Generación con OCI")
     st.write("✅ Fuentes trazables")
+    st.write("✅ Restricciones médicas")
 
-    if st.button("Limpiar conversación", use_container_width=True):
+    if st.button("🗑️ Limpiar conversación", use_container_width=True):
         st.session_state.messages = []
         st.rerun()
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    avatar = "👤" if message["role"] == "user" else "🤖"
+    with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
+        if message.get("model_id"):
+            st.caption(f"Respuesta generada con {message['model_id']} · contexto documental recuperado")
         if message.get("sources"):
-            with st.expander("Fuentes utilizadas"):
+            with st.expander("📚 Fuentes utilizadas"):
                 for source in message["sources"]:
                     st.markdown(f"**{source['label']}**")
-                    st.caption(f"Relevancia: {source['score']:.3f}")
+                    st.caption(f"Puntaje de relevancia: {source['score']:.3f}")
                     st.write(source["content"])
 
 pending = st.session_state.pop("pending_question", None)
@@ -117,22 +169,22 @@ active_question = question or pending
 
 if active_question and agent is not None:
     st.session_state.messages.append({"role": "user", "content": active_question})
-    with st.chat_message("user"):
+    with st.chat_message("user", avatar="👤"):
         st.markdown(active_question)
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar="🤖"):
         try:
-            with st.spinner("Consultando los documentos de la clínica..."):
+            with st.spinner("Buscando evidencia y redactando la respuesta..."):
                 response = agent.answer(active_question)
             st.markdown(response.answer)
 
             source_payload = []
             if response.sources:
-                with st.expander("Fuentes utilizadas", expanded=True):
+                with st.expander("📚 Fuentes utilizadas", expanded=False):
                     for result in response.sources:
                         label = f"{result.chunk.source} · {result.chunk.location}"
                         st.markdown(f"**{label}**")
-                        st.caption(f"Relevancia: {result.score:.3f}")
+                        st.caption(f"Puntaje de relevancia: {result.score:.3f}")
                         st.write(result.chunk.content)
                         source_payload.append(
                             {
@@ -142,11 +194,17 @@ if active_question and agent is not None:
                             }
                         )
 
+            if response.model_id and response.used_oci:
+                st.caption(
+                    f"Respuesta generada con {response.model_id} · tipo: {response.response_type}"
+                )
+
             st.session_state.messages.append(
                 {
                     "role": "assistant",
                     "content": response.answer,
                     "sources": source_payload,
+                    "model_id": response.model_id if response.used_oci else None,
                 }
             )
         except OCIInferenceError as exc:

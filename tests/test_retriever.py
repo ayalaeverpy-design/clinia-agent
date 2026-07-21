@@ -29,6 +29,17 @@ def test_search_finds_cancellation_policy() -> None:
     assert any("cancelaciones" in result.chunk.source for result in results[:3])
 
 
+def test_search_filters_incidental_arrival_match() -> None:
+    results = build_retriever().search(
+        "¿Con cuánta anticipación puedo cancelar un turno?",
+        top_k=5,
+    )
+
+    assert results
+    labels = [f"{result.chunk.category} {result.chunk.content}".lower() for result in results]
+    assert not any("¿con cuánta anticipación debo llegar?" in label for label in labels)
+
+
 def test_search_finds_privacy_policy() -> None:
     results = build_retriever().search(
         "¿Cómo protege la clínica mis datos personales?",

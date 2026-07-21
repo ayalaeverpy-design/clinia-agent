@@ -91,3 +91,11 @@ http://localhost:8501
 ## Alcance y seguridad
 
 Todos los datos son ficticios. ClinIA brinda información administrativa. No realiza diagnósticos, no interpreta síntomas y no recomienda medicamentos.
+
+## Mejoras de precisión y experiencia
+
+- Recuperación BM25 con penalización de coincidencias parciales.
+- Fuentes incidentales filtradas mediante umbral relativo de relevancia.
+- Respuestas completas, breves y sin viñetas cortadas.
+- Fuentes ocultas cuando la documentación no contiene una respuesta suficiente.
+- Interfaz de chat optimizada para la demostración del Challenge.

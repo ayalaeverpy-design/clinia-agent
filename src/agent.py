@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from src.models import SearchResult
 from src.oci_client import OCIChatClient
-from src.prompts import SYSTEM_INSTRUCTIONS, build_user_prompt
+from src.prompts import NO_CONTEXT_MESSAGE, SYSTEM_INSTRUCTIONS, build_user_prompt
 from src.retriever import BM25Retriever
 from src.safety import evaluate_question
 
@@ -26,11 +26,17 @@ class ClinIAAgent:
         retriever: BM25Retriever,
         oci_client: OCIChatClient,
         *,
-        top_k: int = 5,
+        top_k: int = 4,
     ) -> None:
         self.retriever = retriever
         self.oci_client = oci_client
         self.top_k = top_k
+
+    @staticmethod
+    def _is_no_context_answer(answer: str) -> bool:
+        normalized = " ".join(answer.lower().split())
+        expected = " ".join(NO_CONTEXT_MESSAGE.lower().split())
+        return expected in normalized
 
     def answer(self, question: str) -> AgentResponse:
         clean_question = question.strip()
@@ -49,10 +55,7 @@ class ClinIAAgent:
         results = self.retriever.search(clean_question, top_k=self.top_k)
         if not results:
             return AgentResponse(
-                answer=(
-                    "No encontré información suficiente en los documentos de la clínica para "
-                    "responder esa consulta. Te recomiendo comunicarte con recepción."
-                ),
+                answer=NO_CONTEXT_MESSAGE,
                 sources=(),
                 response_type="no_context",
                 used_oci=False,
@@ -64,8 +67,17 @@ class ClinIAAgent:
             user_prompt=prompt,
         )
 
+        if self._is_no_context_answer(generated.text):
+            return AgentResponse(
+                answer=NO_CONTEXT_MESSAGE,
+                sources=(),
+                response_type="no_context",
+                used_oci=True,
+                model_id=generated.model_id,
+            )
+
         return AgentResponse(
-            answer=generated.text,
+            answer=generated.text.strip(),
             sources=tuple(results),
             response_type="grounded_answer",
             used_oci=True,

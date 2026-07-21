@@ -22,13 +22,16 @@ SYNONYMS = {
     "turnos": {"turno"},
     "cancelar": {"cancelacion", "anular"},
     "cancelo": {"cancelacion"},
+    "cancelaciones": {"cancelacion"},
     "reprogramar": {"reagendamiento", "reagendar"},
     "reagendar": {"reagendamiento"},
     "seguro": {"convenio", "cobertura"},
     "aseguradora": {"convenio", "cobertura"},
     "cedula": {"documento", "identidad"},
+    "documentos": {"documento", "requisito"},
     "datos": {"privacidad", "informacion"},
     "medicamentos": {"medicacion"},
+    "estacionamiento": {"parking", "aparcamiento"},
 }
 
 
@@ -52,8 +55,22 @@ def tokenize(text: str, expand_synonyms: bool = False) -> list[str]:
     return expanded
 
 
+def _searchable_text(chunk: DocumentChunk) -> str:
+    """Incluye metadatos útiles sin contaminar el contenido mostrado al usuario."""
+
+    return " ".join(
+        part
+        for part in (
+            chunk.category or "",
+            chunk.source.replace("_", " ").replace(".", " "),
+            chunk.content,
+        )
+        if part
+    )
+
+
 class BM25Retriever:
-    """Índice BM25 liviano para encontrar fragmentos relevantes sin servicios externos."""
+    """Índice BM25 liviano con penalización de coincidencias parciales."""
 
     def __init__(
         self,
@@ -68,7 +85,7 @@ class BM25Retriever:
         self.chunks = chunks
         self.k1 = k1
         self.b = b
-        self.document_tokens = [tokenize(chunk.content) for chunk in chunks]
+        self.document_tokens = [tokenize(_searchable_text(chunk)) for chunk in chunks]
         self.term_frequencies = [Counter(tokens) for tokens in self.document_tokens]
         self.document_lengths = [len(tokens) for tokens in self.document_tokens]
         self.average_document_length = sum(self.document_lengths) / len(self.document_lengths)
@@ -98,17 +115,30 @@ class BM25Retriever:
             )
             score += self._idf(term) * (term_frequency * (self.k1 + 1)) / denominator
 
-        return score
+        unique_query_terms = set(query_tokens)
+        if not unique_query_terms:
+            return 0.0
+
+        matched_terms = sum(1 for term in unique_query_terms if frequencies.get(term, 0) > 0)
+        coverage = matched_terms / len(unique_query_terms)
+
+        # Un fragmento que coincide con una sola palabra genérica recibe una penalización.
+        # Los fragmentos que cubren la intención completa reciben un pequeño refuerzo.
+        coverage_factor = 0.5 + coverage**2
+        return score * coverage_factor
 
     def search(
         self,
         query: str,
         *,
         top_k: int = 5,
-        min_score: float = 0.01,
+        min_score: float = 1.0,
+        min_relative_score: float = 0.65,
     ) -> list[SearchResult]:
         if top_k <= 0:
             raise ValueError("top_k debe ser mayor que cero")
+        if not 0 <= min_relative_score <= 1:
+            raise ValueError("min_relative_score debe estar entre 0 y 1")
 
         query_tokens = tokenize(query, expand_synonyms=True)
         if not query_tokens:
@@ -120,4 +150,11 @@ class BM25Retriever:
         ]
         filtered = [result for result in results if result.score >= min_score]
         filtered.sort(key=lambda result: result.score, reverse=True)
-        return filtered[:top_k]
+
+        if not filtered:
+            return []
+
+        best_score = filtered[0].score
+        relative_cutoff = best_score * min_relative_score
+        focused = [result for result in filtered if result.score >= relative_cutoff]
+        return focused[:top_k]

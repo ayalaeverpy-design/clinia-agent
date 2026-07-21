@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from src.agent import ClinIAAgent
 from src.models import DocumentChunk, SearchResult
 from src.oci_client import OCIChatResult
+from src.prompts import NO_CONTEXT_MESSAGE
 
 
 class FakeRetriever:
@@ -15,11 +16,12 @@ class FakeRetriever:
 
 @dataclass
 class FakeOCIClient:
+    text: str = "Respuesta basada en documentos."
     calls: int = 0
 
     def chat(self, *, system_prompt, user_prompt):
         self.calls += 1
-        return OCIChatResult(text="Respuesta basada en documentos.", model_id="fake-model")
+        return OCIChatResult(text=self.text, model_id="fake-model")
 
 
 def _result():
@@ -42,6 +44,7 @@ def test_agent_uses_oci_when_context_exists() -> None:
     assert response.used_oci is True
     assert response.model_id == "fake-model"
     assert client.calls == 1
+    assert response.sources
 
 
 def test_agent_skips_oci_for_medical_advice() -> None:
@@ -58,3 +61,14 @@ def test_agent_returns_fallback_without_context() -> None:
     response = agent.answer("¿Tienen estacionamiento?")
     assert response.response_type == "no_context"
     assert response.used_oci is False
+    assert response.sources == ()
+
+
+def test_agent_hides_sources_when_model_returns_no_context() -> None:
+    client = FakeOCIClient(text=NO_CONTEXT_MESSAGE)
+    agent = ClinIAAgent(FakeRetriever([_result()]), client)
+    response = agent.answer("¿Tienen estacionamiento gratuito?")
+    assert response.response_type == "no_context"
+    assert response.used_oci is True
+    assert response.sources == ()
+    assert response.answer == NO_CONTEXT_MESSAGE

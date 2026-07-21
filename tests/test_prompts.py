@@ -1,5 +1,5 @@
 from src.models import DocumentChunk, SearchResult
-from src.prompts import build_context, build_user_prompt
+from src.prompts import NO_CONTEXT_MESSAGE, SYSTEM_INSTRUCTIONS, build_context, build_user_prompt
 
 
 def _result() -> SearchResult:
@@ -8,21 +8,28 @@ def _result() -> SearchResult:
             content="La cancelación sin costo requiere 24 horas de anticipación.",
             source="cancelaciones.pdf",
             document_type="pdf",
-            chunk_id="abc",
+            chunk_id="c1",
             page=1,
-            category="cancelaciones",
+            category="Cancelaciones",
         ),
-        score=2.5,
+        score=5.0,
     )
 
 
-def test_context_includes_source_and_location() -> None:
+def test_context_contains_source_metadata() -> None:
     context = build_context([_result()])
     assert "cancelaciones.pdf" in context
     assert "página 1" in context
+    assert "Cancelaciones" in context
 
 
-def test_user_prompt_includes_question() -> None:
-    prompt = build_user_prompt("¿Puedo cancelar?", [_result()])
-    assert "¿Puedo cancelar?" in prompt
-    assert "CONTEXTO DOCUMENTAL" in prompt
+def test_user_prompt_contains_question_and_context() -> None:
+    prompt = build_user_prompt("¿Cuándo puedo cancelar?", [_result()])
+    assert "¿Cuándo puedo cancelar?" in prompt
+    assert "24 horas" in prompt
+    assert "ninguna oración" in prompt
+
+
+def test_system_prompt_requires_complete_answers() -> None:
+    assert "No dejes viñetas" in SYSTEM_INSTRUCTIONS
+    assert NO_CONTEXT_MESSAGE in SYSTEM_INSTRUCTIONS
