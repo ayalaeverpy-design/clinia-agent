@@ -152,7 +152,7 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"], avatar=avatar):
         st.markdown(message["content"])
         if message.get("model_id"):
-            st.caption(f"Respuesta generada con {message['model_id']} · contexto documental recuperado")
+            st.caption("Respuesta generada con OCI Generative AI y respaldada por documentos")
         if message.get("sources"):
             with st.expander("📚 Fuentes utilizadas"):
                 for source in message["sources"]:
@@ -196,7 +196,7 @@ if active_question and agent is not None:
 
             if response.model_id and response.used_oci:
                 st.caption(
-                    f"Respuesta generada con {response.model_id} · tipo: {response.response_type}"
+                    "Respuesta generada con OCI Generative AI y respaldada por documentos"
                 )
 
             st.session_state.messages.append(

@@ -1,5 +1,10 @@
 from src.models import DocumentChunk, SearchResult
-from src.prompts import NO_CONTEXT_MESSAGE, SYSTEM_INSTRUCTIONS, build_context, build_user_prompt
+from src.prompts import (
+    NO_CONTEXT_MESSAGE,
+    SYSTEM_INSTRUCTIONS,
+    build_context,
+    build_user_prompt,
+)
 
 
 def _result() -> SearchResult:
@@ -27,7 +32,7 @@ def test_user_prompt_contains_question_and_context() -> None:
     prompt = build_user_prompt("¿Cuándo puedo cancelar?", [_result()])
     assert "¿Cuándo puedo cancelar?" in prompt
     assert "24 horas" in prompt
-    assert "ninguna oración" in prompt
+    assert "última oración termine completamente" in prompt
 
 
 def test_system_prompt_requires_complete_answers() -> None:

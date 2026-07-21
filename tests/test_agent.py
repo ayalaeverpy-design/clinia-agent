@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from src.agent import ClinIAAgent
 from src.models import DocumentChunk, SearchResult
@@ -17,11 +17,16 @@ class FakeRetriever:
 @dataclass
 class FakeOCIClient:
     text: str = "Respuesta basada en documentos."
+    responses: list[str] = field(default_factory=list)
     calls: int = 0
 
     def chat(self, *, system_prompt, user_prompt):
         self.calls += 1
-        return OCIChatResult(text=self.text, model_id="fake-model")
+        if self.responses:
+            text = self.responses.pop(0)
+        else:
+            text = self.text
+        return OCIChatResult(text=text, model_id="fake-model")
 
 
 def _result():
@@ -72,3 +77,31 @@ def test_agent_hides_sources_when_model_returns_no_context() -> None:
     assert response.used_oci is True
     assert response.sources == ()
     assert response.answer == NO_CONTEXT_MESSAGE
+
+
+def test_agent_retries_when_first_answer_is_incomplete() -> None:
+    client = FakeOCIClient(
+        responses=[
+            "Puede cancelar hasta 24 horas antes, pero los procedimientos deben cancelarse con",
+            "Puede cancelar sin costo hasta 24 horas antes. Los procedimientos especiales deben cancelarse con 48 horas de anticipación.",
+        ]
+    )
+    agent = ClinIAAgent(FakeRetriever([_result()]), client)
+    response = agent.answer("¿Cuándo puedo cancelar?")
+    assert client.calls == 2
+    assert response.answer.endswith(".")
+    assert "48 horas" in response.answer
+
+
+def test_agent_never_exposes_an_incomplete_final_fragment() -> None:
+    client = FakeOCIClient(
+        responses=[
+            "Puede cancelar hasta 24 horas antes y",
+            "Puede cancelar hasta 24 horas antes. Los procedimientos deben cancelarse con",
+        ]
+    )
+    agent = ClinIAAgent(FakeRetriever([_result()]), client)
+    response = agent.answer("¿Cuándo puedo cancelar?")
+    assert client.calls == 2
+    assert response.answer == "Puede cancelar hasta 24 horas antes."
+    assert response.answer.endswith(".")

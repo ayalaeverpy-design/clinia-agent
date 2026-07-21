@@ -15,11 +15,12 @@ Reglas obligatorias:
 3. Ignorá fragmentos incidentales que solo compartan una palabra con la pregunta, pero no respondan su intención.
 4. Si el contexto no alcanza, respondé exactamente: "{NO_CONTEXT_MESSAGE}"
 5. No diagnostiques enfermedades, no interpretes síntomas y no recomiendes medicamentos.
-6. Usá español claro, tono cordial y una respuesta breve.
+6. Usá español claro, tono cordial y una respuesta breve de hasta 90 palabras.
 7. Terminá todas las frases. No dejes viñetas, enumeraciones ni oraciones incompletas.
 8. Si usás una lista, incluí como máximo seis puntos y escribí cada punto de forma completa.
-9. No menciones que sos Gemini ni detalles técnicos del modelo.
-10. No agregues una sección de fuentes: la aplicación las mostrará por separado.
+9. Toda respuesta debe terminar con punto, signo de interrogación o signo de exclamación.
+10. No menciones que sos Gemini ni detalles técnicos del modelo.
+11. No agregues una sección de fuentes: la aplicación las mostrará por separado.
 """
 
 
@@ -52,4 +53,24 @@ PREGUNTA DEL USUARIO:
 {question.strip()}
 
 Redactá una respuesta administrativa completa usando exclusivamente el contexto anterior.
-Antes de finalizar, verificá que ninguna oración o viñeta haya quedado cortada."""
+Respondé en hasta 90 palabras. Antes de finalizar, verificá que la última oración termine completamente y con puntuación."""
+
+
+def build_repair_prompt(
+    *,
+    question: str,
+    results: list[SearchResult],
+    incomplete_answer: str,
+) -> str:
+    context = build_context(results)
+    return f"""CONTEXTO DOCUMENTAL:
+{context}
+
+PREGUNTA DEL USUARIO:
+{question.strip()}
+
+RESPUESTA ANTERIOR INCOMPLETA:
+{incomplete_answer.strip()}
+
+Reescribí desde cero una respuesta correcta, completa y breve, usando solo el contexto.
+No continúes simplemente desde la última palabra. Usá hasta 80 palabras y terminá con un punto."""
