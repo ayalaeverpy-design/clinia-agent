@@ -2,3 +2,4 @@ streamlit
 pypdf
 pandas
 python-dotenv
+oci>=2.179.0
