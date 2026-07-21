@@ -11,7 +11,8 @@ ClinIA es un agente académico que responde consultas administrativas usando doc
 - ✅ Integración con OCI Generative AI.
 - ✅ Respuestas con fuentes trazables.
 - ✅ Bloqueo de diagnósticos y recomendaciones de medicamentos.
-- ⏳ Deploy público en OCI.
+- ✅ Deploy público en Oracle Cloud Infrastructure (OCI).
+- ✅ 28 pruebas automatizadas aprobadas (`28 passed`).
 
 ## Arquitectura
 
@@ -20,6 +21,42 @@ Usuario → Streamlit → Reglas de seguridad → Recuperación BM25
         → Contexto documental → Gemini 2.5 Flash en OCI
         → Respuesta + fuentes
 ```
+
+
+
+## Tecnologías utilizadas
+
+- Python 3
+- Streamlit
+- Oracle Cloud Infrastructure (OCI)
+- OCI Generative AI
+- Google Gemini 2.5 Flash
+- BM25
+- pandas
+- pypdf
+- pytest
+- Nginx
+- Ubuntu Linux
+- Git y GitHub
+
+## Deploy en OCI
+
+La aplicación fue desplegada en una instancia **Oracle Cloud Infrastructure Compute** utilizando:
+
+- Ubuntu Server
+- Streamlit
+- Nginx como proxy inverso
+- OCI Instance Principal
+- OCI Generative AI
+
+### Evidencia
+
+Acceso público mediante IP de OCI:
+
+`http://157.151.137.110`
+
+![ClinIA desplegada en OCI](screenshots/clinia-oci-deploy.png)
+
 
 ## Configuración local
 
