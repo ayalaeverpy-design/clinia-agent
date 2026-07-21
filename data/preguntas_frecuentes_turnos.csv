@@ -1,0 +1,28 @@
+﻿categoria,pregunta,respuesta,fuente_recomendada
+Turnos,¿Cómo puedo solicitar un turno?,"Puede solicitarlo por teléfono, WhatsApp, formulario web o personalmente en recepción. El turno queda confirmado cuando recibe el mensaje de confirmación.",preguntas_frecuentes_turnos.csv
+Turnos,¿Qué información necesito para reservar?,"Nombre completo, número de documento, teléfono, especialidad, motivo general de consulta y datos del convenio si posee cobertura.",preguntas_frecuentes_turnos.csv
+Horarios,¿Cuál es el horario de atención?,La clínica atiende de lunes a viernes de 08:00 a 18:00 y los sábados de 08:00 a 12:00. No se realizan consultas programadas los domingos.,preguntas_frecuentes_turnos.csv
+Llegada,¿Con cuánta anticipación debo llegar?,Se recomienda llegar 15 minutos antes para completar la admisión y verificar la cobertura.,instrucciones_pre_post_consulta.pdf
+Documentos,¿Qué debo llevar a la consulta?,"Debe llevar documento de identidad, carnet del convenio, autorización si corresponde, estudios anteriores y una lista de medicamentos y alergias.",instrucciones_pre_post_consulta.pdf
+Primera consulta,¿La primera consulta requiere algo especial?,"Sí. Debe completar una ficha de admisión y presentar antecedentes, estudios previos y datos de contacto actualizados.",preguntas_frecuentes_turnos.csv
+Menores,¿Puede un menor asistir solo?,"No. Debe asistir con su madre, padre, tutor o una persona debidamente autorizada.",instrucciones_pre_post_consulta.pdf
+Confirmación,¿Cómo sé si mi turno está confirmado?,"Recibirá un mensaje con fecha, hora, profesional y especialidad. Si no recibe confirmación, debe comunicarse con recepción.",preguntas_frecuentes_turnos.csv
+Cancelación,¿Hasta cuándo puedo cancelar sin costo?,Puede cancelar sin costo hasta 24 horas antes del turno.,politica_cancelaciones_reagendamiento.pdf
+Reagendamiento,¿Puedo cambiar la fecha del turno?,"Sí. Con más de 24 horas puede reagendar sin recargo. Entre 12 y 24 horas se permite un cambio sin recargo por turno, sujeto a disponibilidad.",politica_cancelaciones_reagendamiento.pdf
+Demora,¿Qué pasa si llego tarde?,"Existe una tolerancia de 15 minutos. Después de ese tiempo, la atención dependerá de la disponibilidad del profesional y puede ser necesario reagendar.",politica_cancelaciones_reagendamiento.pdf
+Inasistencia,¿Qué ocurre si no me presento?,"Se registra una inasistencia. Después de dos inasistencias dentro de 90 días, la clínica puede solicitar pago anticipado para el siguiente turno.",politica_cancelaciones_reagendamiento.pdf
+Teleconsulta,¿La clínica ofrece teleconsultas?,"Sí, para especialidades y controles que no requieran evaluación física inmediata. La disponibilidad se confirma al solicitar el turno.",instrucciones_pre_post_consulta.pdf
+Teleconsulta,¿Cómo me preparo para una teleconsulta?,"Conéctese 10 minutos antes, verifique cámara y micrófono, utilice un lugar privado y tenga a mano documentos, estudios y lista de medicamentos.",instrucciones_pre_post_consulta.pdf
+Cobertura,¿Cómo verifico si mi convenio cubre la consulta?,"Debe informar convenio y plan al reservar. La recepción verificará cobertura y le indicará copago, autorización y requisitos.",convenios_coberturas.csv
+Autorización,¿Quién obtiene la autorización del convenio?,"Cuando el plan lo exige, el paciente debe presentar la autorización. En planes específicos, recepción puede gestionarla con al menos 48 horas de anticipación.",convenios_coberturas.csv
+Pago,¿Qué medios de pago se aceptan?,"Se aceptan efectivo, tarjeta de débito, tarjeta de crédito y transferencia bancaria. Los medios disponibles se confirman en recepción.",preguntas_frecuentes_turnos.csv
+Resultados,¿Cómo recibo mis resultados?,Los resultados se entregan por el canal informado al realizar el estudio. La interpretación corresponde al profesional.,instrucciones_pre_post_consulta.pdf
+Recetas,¿Puedo pedir una receta por WhatsApp?,"Las recetas requieren evaluación o autorización del profesional. Recepción puede recibir la solicitud, pero no garantiza su emisión.",preguntas_frecuentes_turnos.csv
+Privacidad,¿La clínica comparte mis datos?,"No vende datos. Solo puede compartirlos con participantes necesarios de la atención, proveedores autorizados, el convenio o autoridades cuando exista obligación legal.",politica_privacidad_datos_paciente.pdf
+Privacidad,¿Puedo pedir una copia de mis datos?,"Sí. Puede solicitar acceso, corrección o actualización mediante el canal de privacidad y la clínica responderá dentro del plazo establecido en la política.",politica_privacidad_datos_paciente.pdf
+Emergencias,¿Puedo usar el chat para una emergencia?,No. El chat es administrativo. Ante síntomas graves debe acudir a urgencias o contactar al sistema local de emergencias.,instrucciones_pre_post_consulta.pdf
+Acompañante,¿Puedo ir acompañado?,"Sí. Puede asistir con un acompañante cuando sea necesario, sujeto a capacidad de la sala y reglas de privacidad.",preguntas_frecuentes_turnos.csv
+Estudios,¿Debo hacer ayuno antes de la consulta?,No debe hacer ayuno salvo que el profesional o el servicio de diagnóstico lo indique expresamente.,instrucciones_pre_post_consulta.pdf
+Medicamentos,¿Debo suspender mis medicamentos?,No. No suspenda ni modifique medicamentos sin indicación de un profesional.,instrucciones_pre_post_consulta.pdf
+Historia clínica,¿Cuánto tiempo se conserva mi información clínica?,"La política ficticia establece diez años desde la última consulta, salvo que una norma aplicable exija otro plazo.",politica_privacidad_datos_paciente.pdf
+Contacto,¿Cuál es el correo de privacidad?,El correo ficticio es privacidad@clinicavidaplena.example. El dominio .example indica que no es un correo real.,politica_privacidad_datos_paciente.pdf
