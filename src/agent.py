@@ -139,6 +139,20 @@ class ClinIAAgent:
         if not clean_question:
             raise ValueError("La pregunta no puede estar vacía")
 
+
+        greetings = {"hola","hola!","buenas","buen dia","buen día","buenos dias","buenos días","buenas tardes","buenas noches","quien sos","¿quién sos?","quién sos","quien eres","gracias","chau","adios","adiós"}
+        normalized = clean_question.lower().strip("¿?¡!")
+        if normalized in greetings:
+            if normalized in {"gracias"}:
+                msg="¡De nada! 😊 Estoy para ayudarte con consultas administrativas de la Clínica Vida Plena."
+            elif normalized in {"chau","adios","adiós"}:
+                msg="¡Hasta luego! 👋 Gracias por utilizar ClinIA. Que tengas un excelente día."
+            elif normalized in {"quien sos","¿quién sos?","quién sos","quien eres"}:
+                msg="Soy ClinIA, el asistente virtual de Clínica Vida Plena. Puedo ayudarte con turnos, cancelaciones, convenios, privacidad de datos e indicaciones pre y post consulta."
+            else:
+                msg="¡Hola! 👋 Soy ClinIA, el asistente virtual de Clínica Vida Plena. Puedo ayudarte con turnos, cancelaciones, convenios, privacidad de datos e indicaciones pre y post consulta. ¿En qué puedo ayudarte hoy?"
+            return AgentResponse(answer=msg,sources=(),response_type="greeting",used_oci=False)
+
         safety = evaluate_question(clean_question)
         if safety.blocked:
             return AgentResponse(
